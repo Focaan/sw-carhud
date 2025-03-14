@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car HUD</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: transparent;
+      font-family: Rubik, sans-serif;
+    }
+
+    .carhud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #2e2e2ebe;
+      border-radius: 2px;
+      padding: 4px 8px;
+      width: 255px;
+      height: 30px;
+      position: absolute;
+      bottom: 220px;
+      left: 11px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .fuel-section {
+      display: flex;
+      align-items: center;
+    }
+
+    .fuel-icon {
+      font-size: 12px;
+      color: #dcdcdc;
+      margin-right: 4px;
+    }
+
+    .fuel-bar {
+      height: 8px;
+      width: 95px;
+      background-color: #5c5c5c;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #3b3b3b;
+    }
+
+    .fuel-fill {
+      height: 100%;
+      width: 20%;
+      background-color: #f4a742;
+      transition: width 0.5s ease-in-out;
+    }
+
+    .speed-section {
+      display: flex;
+      align-items: center;
+      color: #dcdcdc;
+      font-size: 12px;
+    }
+
+    .speed-icon {
+      font-size: 14px;
+      color: #dcdcdc;
+      margin-right: 5px;
+    }
+
+    .speed-value {
+      min-width: 35px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="carhud" id="carHud">
+    <div class="fuel-section">
+      <i class="fas fa-gas-pump fuel-icon"></i>
+      <div class="fuel-bar">
+        <div class="fuel-fill" id="fuelFill"></div>
+      </div>
+    </div>
+    <div class="speed-section">
+      <i class="fas fa-tachometer-alt speed-icon"></i>
+      <div class="speed-value" id="speedValue">0 MPH</div>
+    </div>
+  </div>
+
+  <script>
+function updateCarHud(fuel, speed, mapLoc) {
+    const fuelFill = document.getElementById("fuelFill");
+    const speedValue = document.getElementById("speedValue");
+    const carHud = document.getElementById("carHud");
+
+    fuelFill.style.width = `${fuel}%`; 
+    speedValue.textContent = `${speed} MPH`; 
+
+    if (mapLoc && typeof mapLoc.x !== "undefined" && typeof mapLoc.y !== "undefined" && typeof mapLoc.width !== "undefined") {
+        carHud.style.left = `${mapLoc.x}px`; 
+        carHud.style.top = `${mapLoc.y}px`; 
+        carHud.style.width = `${mapLoc.width}px`; 
+    }
+}
+
+window.addEventListener('message', function(event) {
+    const carHUD = document.getElementById('carHud');
+    
+    if (event.data.type === "showHUD") {
+        carHUD.style.display = 'flex';        
+        carHUD.style.opacity = 1;             
+        setTimeout(() => {
+            carHUD.classList.add('visible');  
+        }, 50);
+    }
+
+    if (event.data.type === "hideHUD") {
+        carHUD.style.opacity = 0;           
+        setTimeout(() => {
+            carHUD.style.display = 'none';  
+        }, 500);  
+    }
+});
+
+
+
+window.addEventListener("message", function(event) {
+    if (event.data.type === "carHudUpdate") {
+        if (event.data.show !== false) {
+            const carHud = document.getElementById("carHud");
+            carHud.style.display = "flex";
+            carHud.style.opacity = 1;
+        }
+        updateCarHud(event.data.fuel, event.data.speed, event.data.mapLoc);
+    }
+
+    if (event.data.type === "leaveCar") {
+        const carHud = document.getElementById("carHud");
+        carHud.style.opacity = 0;
+        setTimeout(() => {
+            carHud.style.display = "none";
+        }, 1000);
+    }
+});
+
+
+  </script>
+</body>
+</html>
