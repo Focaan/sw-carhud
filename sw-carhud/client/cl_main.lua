@@ -1,6 +1,5 @@
 local inVehicle = false
 local hudon = false
-local hudStatus = GetResourceKvpString("fcn_carhud_oldhud")
 
 Citizen.CreateThread(function()
     while true do
